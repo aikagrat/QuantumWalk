@@ -8,16 +8,28 @@ k=3 #number of sites
 final = np.zeros((2*k,1),dtype=complex) #2k number of total sites (up and down)
 #final[0][0] = 1. #spin up 
 #final[1][0] = 1. #spin down
-final[2*k-1][0]=1.
+#final[2*k-1][0]=1.
 
-final = np.ones((2*k,1),dtype=complex)/math.sqrt(2*k)
-final[2*k-1][0] = -final[2*k-1][0]
+#final = np.ones((2*k,1),dtype=complex)/math.sqrt(2*k)
+#final[2*k-1][0] = -final[2*k-1][0]
+#final[3][0] = final[2*k-2][0] = 0. #| 1 down > , |3 up >
 #final[2*k-3][0] = -final[2*k-3][0]
 
 initial = np.zeros((2*k,1),dtype=complex)
 initial[0][0]=initial[1][0]=1./math.sqrt(2)
 
-print (final)
+u1 = np.ones((2,1),dtype=complex)/math.sqrt(2)
+u2 = np.ones((2,1),dtype=complex)/math.sqrt(2)
+
+final[0][0] = u1[0][0]
+final[2][0]= u1[1][0]
+final[2*k-3][0]= u2[0][0]
+final[2*k-1][0]= -u2[1][0]
+
+Final = final
+
+
+print (Final)
 
 
 #definition of invS
@@ -41,7 +53,8 @@ for j in range (n,1,-1) :
     
     #definition of C
     v1 = np.array([[final[2][0],final[3][0]]])
-    #vn = np.array([[final[6][0],final[7][0]]])
+    #v1=u1
+    #vn = np.array([[final[2*k-3][0],final[2*k-1][0]]])
 
     matrixC = np.zeros((2*k,2*k),dtype=complex)
     r1 = cmath.polar(final[2][0])
@@ -50,14 +63,14 @@ for j in range (n,1,-1) :
     theta = math.atan(x)
     
     phase =np.angle( final[2][0]/final[3][0])
-    print ("phase",phase)
+    #print ("phase",phase)
     
     sum_values= ( phase - math.pi)/2. #sum ksi + z
-    z=2. #freedom in z --> freedom in alpha
+    z=0.5 #freedom in z --> freedom in alpha
     ksi= sum_values - z
 
-    C = np.array([[cmath.rect(1,ksi)*math.cos(theta),cmath.rect(1,z)*math.sin(theta)],[-cmath.rect(1,-z)*math.sin(theta),cmath.rect(1,-ksi)*math.cos(theta)]])
-    #print (C_n)
+    C = np.array([[cmath.exp(ksi*1j)*math.cos(theta),cmath.exp(z*1j)*math.sin(theta)],[-cmath.exp(-z*1j)*math.sin(theta),cmath.exp(-ksi*1j)*math.cos(theta)]])
+    print (C)
     
     invC = np.linalg.inv(C)
     for i in range (0,2*k,2):
@@ -66,7 +79,7 @@ for j in range (n,1,-1) :
         matrixC[0+i][1+i] = invC[0][1]          
         matrixC[1+i][0+i] = invC[1][0]
         
-    listC.append (C)    
+    listC.append (matrixC)    
     
     
     prevstate = np.dot(invS,final)
